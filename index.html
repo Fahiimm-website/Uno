@@ -1,10 +1,198 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-    <title>Meine Website</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNO Rangliste</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #ff4d4d, #ffcc00);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: auto;
+    }
+
+    h1 {
+        text-align: center;
+        color: white;
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+
+    .add-player {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    input {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        padding: 12px 18px;
+        border: none;
+        border-radius: 8px;
+        background: #ff4d4d;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 14px;
+        text-align: center;
+    }
+
+    th {
+        background: #ff4d4d;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background: #f5f5f5;
+    }
+
+    .rank-1 {
+        font-weight: bold;
+        color: gold;
+        font-size: 1.1rem;
+    }
+
+    .win-btn {
+        background: #28a745;
+    }
+
+    .delete-btn {
+        background: #dc3545;
+    }
+</style>
 </head>
 <body>
-    <h1>Willkommen!</h1>
-    <p>Hier stehen meine aktuellen Informationen.</p>
+
+<div class="container">
+    <h1>🏆 UNO Rangliste</h1>
+
+    <div class="card">
+
+        <div class="add-player">
+            <input type="text" id="playerName" placeholder="Neuen Spieler hinzufügen">
+            <button onclick="addPlayer()">Hinzufügen</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Platz</th>
+                    <th>Spieler</th>
+                    <th>Siege</th>
+                    <th>+1 Sieg</th>
+                    <th>Löschen</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard"></tbody>
+        </table>
+
+    </div>
+</div>
+
+<script>
+let players = JSON.parse(localStorage.getItem("unoPlayers")) || [
+    { name: "Max", wins: 5 },
+    { name: "Lena", wins: 3 },
+    { name: "Tom", wins: 2 }
+];
+
+function saveData() {
+    localStorage.setItem("unoPlayers", JSON.stringify(players));
+}
+
+function renderBoard() {
+    players.sort((a, b) => b.wins - a.wins);
+
+    const board = document.getElementById("leaderboard");
+    board.innerHTML = "";
+
+    players.forEach((player, index) => {
+        board.innerHTML += `
+        <tr>
+            <td class="${index === 0 ? 'rank-1' : ''}">
+                ${index + 1}
+            </td>
+            <td>${player.name}</td>
+            <td>${player.wins}</td>
+            <td>
+                <button class="win-btn" onclick="addWin(${index})">
+                    +1
+                </button>
+            </td>
+            <td>
+                <button class="delete-btn" onclick="deletePlayer(${index})">
+                    ✕
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+
+    saveData();
+}
+
+function addPlayer() {
+    const input = document.getElementById("playerName");
+    const name = input.value.trim();
+
+    if (!name) return;
+
+    players.push({
+        name: name,
+        wins: 0
+    });
+
+    input.value = "";
+    renderBoard();
+}
+
+function addWin(index) {
+    players[index].wins++;
+    renderBoard();
+}
+
+function deletePlayer(index) {
+    if (confirm("Spieler wirklich löschen?")) {
+        players.splice(index, 1);
+        renderBoard();
+    }
+}
+
+renderBoard();
+</script>
+
 </body>
 </html>
